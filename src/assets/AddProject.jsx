@@ -1,75 +1,54 @@
-import { forwardRef, useRef, useImperativeHandle } from "react";
+import  Input  from "./Input";
+import { useRef } from "react";
+import Modal from "./Modal";
 
-function AddProject(props, ref){
+function AddProject({onAdd, onCancel}){
 
-  const newProjectRef = useRef();
-  const titleRef = useRef();
-  const descriptionRef = useRef();
-  const dateRef = useRef()
+  const modal = useRef()
 
-  useImperativeHandle(ref, () => {
-    return {
-      open() {
-        newProjectRef.current.showModal();
-      },
-    };
-  });
+  const title = useRef()
+  const description = useRef()
+  const dueDate = useRef()
 
-  const saveProject = () => {
-    const newProject = {
-    title: titleRef.current.value,
-    description: descriptionRef.current.value,
-    date: dateRef.current.value
+  function handleSave() {
+    const enteredTitle = title.current.value;
+    const enteredDescription = description.current.value;
+    const enteredDueDate = dueDate.current.value;
+
+    if (enteredTitle.trim() === "" || enteredDescription.trim() === "" || enteredDueDate.trim() === ""){
+      modal.current.open();
+      return;
     }
-    props.onSave(newProject)
-    newProjectRef.current.close()
-    
-    titleRef.current.value = ""
-    descriptionRef.current.value = ""
-    dateRef.current.value= ""
+
+    onAdd({
+      title: enteredTitle,
+      description: enteredDescription,
+      dueDate: enteredDueDate
+    })
   }
 
 
   return (
-    <dialog ref={newProjectRef}>
-      <form method="dialog">
-        <button>Close</button>
-      </form>
-      <button onClick={saveProject} className="px-6 py-2 rounded-md bg-stone-800 text-stone-50 hover:bg-stone-950">
-        Save
-      </button>
-      <br />
-      <br />
-      <label className="text-sm font-bold uppercase text-stone-500">
-        TITLE
-      </label>
-      <br />
-      <input ref={titleRef}
-        className="w-full p-1 border-b-2 rounded-sm border-stone-300 bg-stone-200 text-stone-600 focus:outline-none focus:border-stone-600"
-        type="text"
-      />
-      <br />
-      <label className="text-sm font-bold uppercase text-stone-500">
-        DESCRIPTION
-      </label>
-      <br />
-      <input ref={descriptionRef}
-        className="w-full p-1 border-b-2 rounded-sm border-stone-300 bg-stone-200 text-stone-600 focus:outline-none focus:border-stone-600"
-        type="text"
-      />
-      <br />
-      <label className="text-sm font-bold uppercase text-stone-500">
-        DUE DATE
-      </label>
-      <br />
-      <input ref={dateRef}
-        className="w-full p-1 border-b-2 rounded-sm border-stone-300 bg-stone-200 text-stone-600 focus:outline-none focus:border-stone-600"
-        type="date"
-      />
-      <br />
-    </dialog>
+    <>
+      <Modal ref={modal} buttonCaption="Okay"> 
+        <h2 className="text-xl font-bold text-stone-700 my-4">Invalid Input</h2>
+        <p className="text-stone-600 mb-4">Oops ... looks like you forgot to enter a value.</p>
+        <p className="text-stone-600 mb-4">Please make sure you provide a valid value for every input field.</p>
+      </Modal>
+      <div className="w-[35rem] mt-16">
+        <menu className="flex items-center justify-end gap-4 my-4">
+          <li><button onClick={onCancel} className="text-stone-800 hover:text-stone-950">Cancel</button></li>
+          <li><button onClick={handleSave} className=" px-6 py-2 rounded-md bg-stone-800 text-stone-50 hover:bg-stone-950">Save</button></li>
+        </menu>
+        <div>
+          <Input type="text" ref={title} label="Title"/>
+          <Input ref={description} label="Description" textarea/>
+          <Input type="date" ref={dueDate} label="Due Date"/>
+        </div>
+      </div>
+    </>
   );
 }
 
-export default forwardRef(AddProject);
+export default AddProject;
 
